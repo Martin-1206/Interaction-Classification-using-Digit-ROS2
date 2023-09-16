@@ -1,0 +1,9 @@
+# goal
+string box_name
+int32 april_tag_id
+digit_msgs/MobilityParameters mobility_parameters
+---
+# result
+bool success
+---
+# feedback

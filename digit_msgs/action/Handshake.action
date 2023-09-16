@@ -1,0 +1,8 @@
+# goal
+float32 duration
+string hand
+---
+# result
+bool success
+---
+# feedback

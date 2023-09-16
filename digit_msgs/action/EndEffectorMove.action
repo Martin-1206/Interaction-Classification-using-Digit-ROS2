@@ -1,0 +1,32 @@
+# goal
+std_msgs/Header header
+string end_effector
+
+geometry_msgs/PoseArray   waypoints
+geometry_msgs/Pose    target # this is ignored if waypoints are given
+
+bool set_stall_threshold 
+float32                     stall_threshold
+
+bool set_cyclic
+bool                        cyclic   
+
+bool set_max_speed
+float32                     max_speed
+
+bool set_duration
+float32                     duration
+
+bool set_transition_duration
+float32                     transition_duration
+
+bool set_use_time_optimal
+bool use_time_optimal
+
+bool set_avoid_obstacles
+bool avoid_obstacles
+---
+# result
+bool success
+---
+# feedback
