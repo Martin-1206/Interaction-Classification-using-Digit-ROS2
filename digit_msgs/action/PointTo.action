@@ -1,8 +1,0 @@
-# goal
-geometry_msgs/PointStamped    target 
-string hand  # e.g. left-hand, right-hand
----
-# result
-bool success
----
-# feedback
