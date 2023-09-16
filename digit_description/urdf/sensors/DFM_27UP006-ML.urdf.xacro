@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="DFM_27UP006-ML">
+
+  <xacro:macro name="DFM_27UP006-ML" params="*origin parent prefix name:=DFM_27UP006-ML">
+  
+  <joint name="camera_joint_${name}" type="fixed">
+    <xacro:insert_block name="origin" />
+    <parent link="${parent}"/>
+    <child link="${prefix}camera_link_${name}"/>
+  </joint>
+
+  <!-- Camera -->
+  <link name="${prefix}camera_link_${name}">
+    <collision>
+      <geometry>
+    <box size="0.03 0.03 0.01"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+<!-- camera -->
+  <gazebo reference="camera_link_${name}">
+    <sensor type="camera" name="camera1">
+      <update_rate>15.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.046666</horizontal_fov>
+        <image>
+          <width>2592</width>
+          <height>1944</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>context_camera</cameraName>
+        <imageTopicName>image_raw_color</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link_${name}</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</xacro:macro>
+</robot>
+

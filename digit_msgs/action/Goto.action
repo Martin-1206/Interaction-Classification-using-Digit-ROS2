@@ -1,0 +1,13 @@
+# goal
+geometry_msgs/PoseStamped   target
+float32                     heading_constraint
+bool set_position_tolerance
+float64 position_tolerance
+bool set_orientation_tolerance
+float64 orientation_tolerance
+digit_msgs/MobilityParameters mobility_parameters
+---
+# result
+bool success
+---
+# feedback

@@ -1,0 +1,5 @@
+class_interaction_node:
+  ros__parameters:
+    distance_x:  1.5
+    velocity:  0.2
+    FoV:  20.0

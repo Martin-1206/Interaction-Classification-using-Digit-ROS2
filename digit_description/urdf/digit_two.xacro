@@ -1,0 +1,720 @@
+<?xml version="1.0" ?>
+<!-- Author: Manuel Weiss
+	 Email:  manuel.weiss@bht-berlin.de
+     Date:   11.07.2022  
+     stl files from Agility Robotics can also be found here: https://github.com/shinerboy/mujoco_testing/tree/main/mujoco200_linux/model/stl
+     obj files (thanks adubredu) can be found here: https://github.com/adubredu/DigitRobot.jl
+       -->
+<robot name="digit" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:arg name="prefix" default=""/>
+
+    <!-- Properties -->
+    <!-- if stl_ext is set to obj Digit will be in the Agility colors.
+         i it is set to stl Digit will be in the colors defined below -->
+    <xacro:property name="file_extention" value="obj"/>
+    <xacro:property name="black_RGB" value="0.1 0-.1 0.1 1" />
+    <xacro:property name="grey_RGB" value="0.35 0.35 0.35 1" />
+    <xacro:property name="orange_RGB" value=".9569 .5372 .2588 1" />
+    <xacro:property name="blue_RGB" value=".0157 .1176 .2588 1" />
+    <xacro:property name="maize_RGB" value=".9451 .7686 0 1" />
+    <xacro:property name="light_grey_RGB" value="0.75 0.75 0.75 1" />
+    <xacro:property name="aluminium_RGB" value="0.862 0.862 0.905 1" />
+    <xacro:property name="prefix" value="$(arg prefix)" />
+
+
+    <xacro:arg name="gpu" default="false"/>
+    <xacro:property name="gpu" value="$(arg gpu)" />
+    <xacro:arg name="organize_cloud" default="false"/>
+    <xacro:property name="organize_cloud" value="$(arg organize_cloud)" />
+
+    
+  
+
+
+
+    <!-- Link Definitions-->
+    <xacro:macro name="base_link" params="prefix">
+        <link name="${prefix}base_link">
+        </link>
+    </xacro:macro>
+    <xacro:macro name="IMU_Nav" params="prefix">
+        <link name="${prefix}IMU_Nav">
+        </link>
+    </xacro:macro>
+    <xacro:macro name="torso" params="cname color stl_ext prefix">
+        <link name="${prefix}torso">
+            <inertial>
+                <origin xyz="0.001637 0.0002 0.259307" rpy="0 0 0"/>
+                <mass value="15.028392" />
+                <inertia 
+                ixx="0.375905" ixy="-8.8e-05" ixz="0.0085" 
+                iyy="0.344193" iyz="6.6e-05" 
+                izz="0.098732" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                <mesh filename='package://digit_description/meshes/collision/torso.${stl_ext}' scale="1 1 1"/>
+                </geometry>
+                <material name="${cname}">
+                <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="torso_abduction" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_torso_abduction">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/hip-roll-housing.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="hip_roll" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_hip_roll">
+            <inertial>
+                    <origin xyz="-0.001967 ${reflect*0.000244} 0.031435" rpy="0 0 0"/>
+                    <inertia
+                        ixx="0.001017" ixy="${reflect*-3e-06}" ixz="1.3e-05"
+                        iyy="0.001148" iyz="${reflect*-4e-06}"
+                        izz="0.000766"/>
+                <mass value="0.915088"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision//hip-yaw-housing.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="hip_yaw" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_hip_yaw">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="1e-05 ${reflect*-0.001945} 0.042033"/>
+                    <inertia 
+                    ixx="0.001627" ixy="${reflect*-1e-06}" ixz="2e-06" 
+                    iyy="0.001929" iyz="${reflect*5.3e-05}" 
+                    izz="0.00077"/>
+                <mass value="0.818753"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/hip-pitch-housing.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="hip_pitch" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_hip_pitch">
+            <inertial>
+                    <origin xyz="0.060537 ${reflect*0.000521} -0.038857" rpy="0 0 0"/>
+                    <inertia 
+                    ixx="0.011533" ixy="${reflect*-0.000171}" ixz="0.000148" 
+                    iyy="0.033345" iyz="${reflect*0.000178}" 
+                    izz="0.033958"/>
+                <mass value="6.244279"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/hip-pitch.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="knee" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_knee">
+            <inertial>
+                    <origin xyz="0.045641 ${reflect*0.042154} 0.001657"  rpy="0 0 0"/>
+                    <inertia 
+                        ixx="0.002643" ixy="${reflect*-0.001832}" ixz="6.6e-05" 
+                        iyy="0.005098" iyz="${reflect*4.5e-05}" 
+                        izz="0.007019"/>
+                <mass value="1.227077"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/knee.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="shin" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_shin">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="0.174265 ${reflect*0.010265} 0.00107"/>
+                    <inertia 
+                    ixx="0.001128" ixy="${reflect*0.001098}" ixz="0.000196" 
+                    iyy="0.022492" iyz="${reflect*-3e-06}" 
+                    izz="0.022793"/>
+                <mass value="0.895793"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/shin.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="tarsus" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_tarsus">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="0.100777 ${reflect*-0.029183} 0.000678"/>
+                    <inertia 
+                    ixx="0.000932" ixy="${reflect*0.00061}" ixz="0.000102" 
+                    iyy="0.016409" iyz="${reflect*9e-06}" 
+                    izz="0.016501"/>
+                <mass value="1.322865"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/tarsus.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="toe_pitch" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_toe_pitch">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="-0.000141 ${reflect*2e-06} 3e-06"/>
+                    <inertia 
+                    ixx="5e-06" ixy="0" ixz="0" 
+                    iyy="8e-06" iyz="0" 
+                    izz="4e-06"/>
+                <mass value="0.043881"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/toe-pitch.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="toe_roll" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_toe_roll">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="9e-06 ${reflect*-0.028084} -0.023204"/>
+                    <inertia 
+                    ixx="0.00187" ixy="0" ixz="0" 
+                    iyy="0.001616" iyz="${reflect*0.000566}" 
+                    izz="0.000843"/>
+                <mass value="0.531283"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/toe-roll.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="toe" params="side cname color stl_ext prefix" >
+        <link name="${prefix}${side}_toe">
+        </link>
+    </xacro:macro>
+    <xacro:macro name="shoulder_cap" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_shoulder_cap">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/shoulder-roll-housing.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="shoulder_roll" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_shoulder_roll">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="-0.000819 ${reflect*-0.003158} 0.023405"/>
+                    <inertia 
+                    ixx="0.000704" ixy="${reflect*1.4e-05}" ixz="1.2e-05" 
+                    iyy="0.00075" iyz="${reflect*3.5e-05}" 
+                    izz="0.000298"/>
+                <mass value="0.535396"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/arm-L1.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="shoulder_pitch" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_shoulder_pitch">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="-4.2e-05 ${reflect*-0.061882} -0.073788"/>
+                    <inertia 
+                    ixx="0.006761" ixy="${reflect*-6e-06}" ixz="-3e-06" 
+                    iyy="0.002087" iyz="${reflect*-0.002046}" 
+                    izz="0.005778"/>
+                <mass value="1.440357"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/arm-L2.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="shoulder_yaw" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_shoulder_yaw">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="-3e-05 ${reflect*0.001937} 0.11407"/>
+                    <inertia 
+                    ixx="0.006967" ixy="${reflect*-1e-06}" ixz="-1e-06" 
+                    iyy="0.007003" iyz="${reflect*-1.5e-05}" 
+                    izz="0.000673"/>
+
+                <mass value="1.065387"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                        <mesh filename="package://digit_description/meshes/collision/arm-L3.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="elbow" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_elbow">
+            <inertial>
+                    <origin rpy="0 0 0" xyz="0.107996 ${reflect*0.000521} -0.017765"/>
+                    <inertia 
+                    ixx="0.000476" ixy="${reflect*-2.9e-05}" ixz="0.001403" 
+                    iyy="0.009564" iyz="${reflect*9e-06}" 
+                    izz="0.009437"/>
+                <mass value="0.550582"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://digit_description/meshes/collision/arm-L4.${stl_ext}" scale="1 ${reflect*1} 1"/>
+                </geometry>
+                <material name="${cname}">
+                    <color rgba="${color}" />
+                </material>
+            </visual>
+        </link>
+    </xacro:macro>
+    <xacro:macro name="hand" params="side cname color stl_ext prefix reflect">
+        <link name="${prefix}${side}_hand">
+        </link>
+    </xacro:macro>
+
+  <!-- Joint Definitions -->
+    <xacro:macro name="fixed_base_link_to_torso" params="prefix">
+        <joint name="${prefix}fixed_base_link_to_torso" type="fixed">
+            <origin xyz="0.0 0 0.0" rpy="0 0 0"/>
+            <parent link="${prefix}base_link" />
+            <child link="${prefix}torso" />
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="fixed_torso_to_IMU_Nav" params="prefix">
+        <joint name="${prefix}fixed_torso_to_IMU_Nav" type="fixed">
+            <origin xyz="0.0 0 0.0" rpy="0 0 0"/>
+            <parent link="${prefix}torso" />
+            <child link="${prefix}IMU_Nav" />
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="fixed_torso_to_abduction" params="side prefix reflect">
+        <joint name="${prefix}fixed_torso_to_abduction_${side}" type="fixed">
+            <origin rpy="0 -${pi/2} 0" xyz="-0.001 ${reflect*0.091} 0"/>
+             <parent link="${prefix}torso" />
+            <child link="${prefix}${side}_torso_abduction" /> 
+        </joint>
+    </xacro:macro>
+
+    <xacro:macro name="hip_abduction" params="side prefix reflect">
+        <joint name="${prefix}hip_abduction_${side}" type="continuous">
+            <origin rpy="0 0 ${-reflect*0.3752458}" xyp="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_torso_abduction" />
+            <child link="${prefix}${side}_hip_roll" />
+            <limit effort="1.4" lower="-1.0472" upper="1.0472" velocity="12.15"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="hip_rotation" params="side prefix reflect">
+        <joint name="${prefix}hip_rotation_${side}" type="continuous">
+            <origin rpy="0 -1.5707963 0" xyz="-0.0505 0 0.044"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_hip_roll" />
+            <child link="${prefix}${side}_hip_yaw" />
+            <limit effort="1.4" lower="-0.698132" upper="0.698132" velocity="12.15"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="hip_flexion" params="side prefix reflect">
+        <joint name="${prefix}hip_flexion_${side}" type="continuous">
+            <origin rpy="${reflect*-1.57079632679} -0.785398163397 ${reflect*3.14159265359}" xyz="0 ${reflect*0.004} 0.068"/>
+            <axis xyz="0 0 -1"/>
+            <parent link="${prefix}${side}_hip_yaw" />
+            <child link="${prefix}${side}_hip_pitch" />
+             <limit effort="12.5" lower="-1.57079632679" upper="1.0472" velocity="8.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="knee_joint" params="side prefix reflect">
+        <joint name="${prefix}knee_joint_${side}" type="continuous">
+            <origin rpy="0 0 ${reflect*-1.57079632679}" xyz="0.12 0 0.0045"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_hip_pitch" />
+            <child link="${prefix}${side}_knee" />
+            <limit effort="12.5" lower="-0.8727" upper="1.2392" velocity="8.5085"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="knee_to_shin" params="side prefix reflect">
+        <joint name="${prefix}knee_to_shin_${side}" type="continuous">
+            <origin rpy="0 0 0" xyz="0.060677 ${reflect*0.047406} 0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_knee" />
+            <child link="${prefix}${side}_shin" />
+            <limit effort="0" lower="-0.35" upper="0.35" velocity="10"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="shin_to_tarsus" params="side prefix reflect">
+        <joint name="${prefix}shin_to_tarsus_${side}" type="continuous">
+            <origin rpy="0 0 ${reflect*1.7976891}" xyz="0.434759 ${reflect*0.02} 0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_shin" />
+            <child link="${prefix}${side}_tarsus" />
+            <limit effort="0" lower="-0.8779" upper="1.2497" velocity="20"/>
+        </joint>
+    </xacro:macro>
+
+
+    <xacro:macro name="toe_pitch_joint" params="side prefix reflect">
+        <joint name="${prefix}toe_pitch_joint_${side}" type="continuous">
+            <origin rpy="0 0 ${reflect*1.1956}" xyz="0.408 ${reflect*-0.04} 0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_tarsus" />
+            <child link="${prefix}${side}_toe_pitch" />
+            <limit effort="0.9" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="toe_roll_joint" params="side prefix reflect">
+        <joint name="${prefix}toe_roll_joint_${side}" type="continuous">
+            <origin rpy="0 1.57079632679 0" xyz="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_toe_pitch" />
+            <child link="${prefix}${side}_toe_roll" />
+            <limit effort="0.9" lower="-0.6109" upper="0.6109" velocity="11.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="toe_joint" params="side prefix reflect">
+        <joint name="${prefix}toe_joint_${side}" type="fixed">
+            <origin rpy="0 -1.0471975 ${reflect*-1.5707963}" xyz="0 ${reflect*-0.05456} -0.0315"/>
+            <parent link="${prefix}${side}_toe_roll" />
+            <child link="${prefix}${side}_toe" />
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="fixed_shoulder_cap" params="side prefix reflect">
+        <joint name="${prefix}fixed_shoulder_cap${side}" type="fixed">
+            <origin rpy="${reflect*-1.57079632679} -1.3962633 ${reflect*1.57079632679}" xyz="-0.001 ${reflect*0.12} 0.4"/>
+            <parent link="${prefix}torso" />
+            <child link="${prefix}${side}_shoulder_cap" />
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="shoulder_roll_joint" params="side prefix reflect">
+        <joint name="${prefix}shoulder_roll_joint_${side}" type="continuous">
+            <origin rpy="0 0 0" xyz="0 0.0 0.0"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_shoulder_cap" />
+            <child link="${prefix}${side}_shoulder_roll" />
+            <limit effort="1.4" lower="-1.309" upper="1.309" velocity="12.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="shoulder_pitch_joint" params="side prefix reflect">
+        <joint name="${prefix}shoulder_pitch_joint_${side}" type="continuous">
+            <origin rpy="${reflect*1.57079632679} 0.785398163397 ${reflect*-0.2792527}" xyz="-0.00317 ${reflect*-0.011055} 0.0555"/>
+            <axis xyz="0 0 -1"/>
+            <parent link="${prefix}${side}_shoulder_roll" />
+            <child link="${prefix}${side}_shoulder_pitch" />
+            <limit effort="1.4" lower="-2.5307" upper="2.5307" velocity="12.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="shoulder_yaw_joint" params="side prefix reflect">
+        <joint name="${prefix}shoulder_yaw_joint_${side}" type="continuous">
+            <origin rpy="${reflect*1.57079632679} 0 0" xyz="0 ${reflect*-0.165} -0.1"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_shoulder_pitch" />
+            <child link="${prefix}${side}_shoulder_yaw" />
+            <limit effort="1.4" lower="-1.7453" upper="1.7453" velocity="10"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="elbow_joint" params="side prefix reflect">
+        <joint name="${prefix}elbow_joint_${side}" type="continuous">
+            <origin rpy="${reflect*1.57079632679} -0.3926991 0" xyz="0 ${reflect*-0.0385} 0.185"/>
+            <axis xyz="0 0 1"/>
+            <parent link="${prefix}${side}_shoulder_yaw" />
+            <child link="${prefix}${side}_elbow" />
+            <limit effort="1.4" lower="-1.3526" upper="1.3526" velocity="12.5"/>
+        </joint>
+    </xacro:macro>
+    <xacro:macro name="fixed_hand_joint" params="side prefix reflect">
+        <joint name="${prefix}fixed_hand_joint_${side}" type="fixed">
+            <origin rpy="${reflect*1.5707963} 0.1745329 0" xyz="0.369 0 -0.07912"/>
+            <parent link="${prefix}${side}_elbow" />
+            <child link="${prefix}${side}_hand" />
+        </joint>
+    </xacro:macro>
+
+
+        <!-- Transmission Definitions -->
+  <xacro:macro name="hip_abduction_trans" params="side prefix">
+    <transmission name="${prefix}hip_abduction_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}hip_abduction_${side}"/>
+	  <actuator name="${prefix}hip_abduction_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="hip_rotation_trans" params="side prefix">
+    <transmission name="${prefix}hip_rotation_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}hip_rotation_${side}"/>
+	  <actuator name="${prefix}hip_rotation_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="hip_flexion_trans" params="side prefix">
+    <transmission name="${prefix}hip_flexion_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}hip_flexion_${side}"/>
+	  <actuator name="${prefix}hip_flexion_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="knee_joint_trans" params="side prefix">
+    <transmission name="${prefix}knee_joint_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}knee_joint_${side}"/>
+	  <actuator name="${prefix}knee_joint_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:macro name="shoulder_roll_joint_trans" params="side prefix">
+    <transmission name="${prefix}shoulder_roll_joint_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}shoulder_roll_joint_${side}"/>
+	  <actuator name="${prefix}shoulder_roll_joint_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="shoulder_pitch_joint_trans" params="side prefix">
+    <transmission name="${prefix}shoulder_pitch_joint_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}shoulder_pitch_joint_${side}"/>
+	  <actuator name="${prefix}shoulder_pitch_joint_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="shoulder_yaw_joint_trans" params="side prefix">
+    <transmission name="${prefix}shoulder_yaw_joint_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}shoulder_yaw_joint_${side}"/>
+	  <actuator name="${prefix}shoulder_yaw_joint_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+  <xacro:macro name="elbow_joint_trans" params="side prefix">
+    <transmission name="${prefix}elbow_joint_trans_${side}" type="transmission_interface/SimpleTransmission">
+	  <joint name="${prefix}elbow_joint_${side}"/>
+	  <actuator name="${prefix}elbow_joint_motor_${side}"/>
+	  <motorInertia>0</motorInertia>
+	  <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+  </xacro:macro>
+
+    <!-- Links -->
+    <xacro:base_link prefix="${prefix}"/>
+    <xacro:IMU_Nav prefix="${prefix}" />
+    <xacro:torso cname="light_grey" color="${light_grey_RGB}" prefix="${prefix}" stl_ext="${file_extention}"/>
+    <xacro:torso_abduction side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:hip_roll side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:hip_yaw side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1" />
+    <xacro:hip_pitch side="left" cname="grey" color="${grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:knee side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1" />
+    <xacro:shin side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:tarsus side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:toe_pitch side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:toe_roll side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:toe side="left" cname="light_grey" color="${light_grey_RGB}" prefix="${prefix}"  stl_ext="${file_extention}"/>
+    
+    <xacro:torso_abduction side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_roll side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_yaw side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_pitch side="right" cname="grey" color="${grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:knee side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:shin side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:tarsus side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:toe_pitch side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:toe_roll side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:toe side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" />
+
+    <xacro:shoulder_cap side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_roll side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_pitch side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_yaw side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+    <xacro:elbow side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1" />
+    <xacro:hand side="left" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="1"/>
+
+    <xacro:shoulder_cap side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_roll side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_pitch side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_yaw side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:elbow side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+    <xacro:hand side="right" cname="light_grey" color="${light_grey_RGB}" stl_ext="${file_extention}" prefix="${prefix}" reflect="-1"/>
+
+    <!-- Joints -->
+    <xacro:fixed_base_link_to_torso prefix="${prefix}"/>
+    <xacro:fixed_torso_to_IMU_Nav prefix="${prefix}"/>
+    <xacro:fixed_torso_to_abduction side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:hip_abduction side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:hip_rotation side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:hip_flexion side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:knee_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:knee_to_shin side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:shin_to_tarsus side="left" prefix="${prefix}" reflect="1"/>
+    <!-- TODO: <xacro:toe_A_rod_joint side="left"/>
+    <xacro:toe_B_rod_joint side="left"/> -->
+    <xacro:toe_pitch_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:toe_roll_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:toe_joint side="left" prefix="${prefix}" reflect="1"/>
+    
+    <xacro:fixed_torso_to_abduction side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_abduction side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_rotation side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:hip_flexion side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:knee_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:knee_to_shin side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:shin_to_tarsus side="right" prefix="${prefix}" reflect="-1"/>
+    <!-- TODO <xacro:toe_A_rod_joint side="right"/>
+    <xacro:toe_B_rod_joint side="right"/> -->
+    <xacro:toe_pitch_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:toe_roll_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:toe_joint side="right" prefix="${prefix}" reflect="-1"/>
+
+    <xacro:fixed_shoulder_cap side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_roll_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_pitch_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:shoulder_yaw_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:elbow_joint side="left" prefix="${prefix}" reflect="1"/>
+    <xacro:fixed_hand_joint side="left" prefix="${prefix}" reflect="1"/>
+
+    <xacro:fixed_shoulder_cap side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_roll_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_pitch_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:shoulder_yaw_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:elbow_joint side="right" prefix="${prefix}" reflect="-1"/>
+    <xacro:fixed_hand_joint side="right" prefix="${prefix}" reflect="-1"/>
+
+    <!-- Transmissions -->
+    <xacro:hip_abduction_trans side="left" prefix="${prefix}"/>
+    <xacro:hip_rotation_trans side="left" prefix="${prefix}"/>
+    <xacro:hip_flexion_trans side="left" prefix="${prefix}"/>
+    <xacro:knee_joint_trans side="left" prefix="${prefix}"/>
+ <!--  TODO <xacro:toe_A_rod_joint_trans side="left"/>
+    <xacro:toe_B_rod_joint_trans side="left"/> -->
+    
+    <xacro:hip_abduction_trans side="right" prefix="${prefix}"/>
+    <xacro:hip_rotation_trans side="right" prefix="${prefix}"/>
+    <xacro:hip_flexion_trans side="right" prefix="${prefix}"/>
+    <xacro:knee_joint_trans side="right" prefix="${prefix}"/>
+ <!--  TODO <xacro:toe_A_rod_joint_trans side="right"/>
+    <xacro:toe_B_rod_joint_trans side="right"/> -->
+    
+    <xacro:shoulder_roll_joint_trans side="left" prefix="${prefix}"/>
+    <xacro:shoulder_pitch_joint_trans side="left" prefix="${prefix}"/>
+    <xacro:shoulder_yaw_joint_trans side="left" prefix="${prefix}"/>
+    <xacro:elbow_joint_trans side="left" prefix="${prefix}"/>
+
+    <xacro:shoulder_roll_joint_trans side="right" prefix="${prefix}"/>
+    <xacro:shoulder_pitch_joint_trans side="right" prefix="${prefix}"/>
+    <xacro:shoulder_yaw_joint_trans side="right" prefix="${prefix}"/>
+    <xacro:elbow_joint_trans side="right" prefix="${prefix}"/>
+
+    <!-- Sensors -->
+    <!-- include lidar and depth cameras -->
+    <xacro:include filename="$(find digit_description)/urdf/sensors/VLP-16.urdf.xacro"/>
+    <xacro:VLP-16 parent="${prefix}torso"  name="${prefix}velodyne" topic="/upper_velodyne_vlp16/depth/points" organize_cloud="${organize_cloud}" hz="10" samples="440" gpu="${gpu}">
+        <origin xyz="0.025 0 0.475" rpy="0 0 0.2618" />
+    </xacro:VLP-16>
+
+    <xacro:include filename="$(find digit_description)/urdf/sensors/_d435.urdf.xacro"/> 
+    <xacro:sensor_d435 name="${prefix}forward_chest_realsense_d435"  topics_ns="forward_chest_realsense_d435" parent="${prefix}torso" publish_pointcloud="true">
+        <origin xyz="0.081 0 0.425" rpy="0 45 0" />
+    </xacro:sensor_d435>
+
+    <xacro:include filename="$(find digit_description)/urdf/sensors/_d430.urdf.xacro"/> 
+    <xacro:sensor_d430 name="${prefix}forward_pelvis_realsense_d430"  topics_ns="forward_pelvis_realsense_d430" parent="${prefix}torso" publish_pointcloud="true">
+        <origin xyz="0.044626 0.0 -0.02" rpy="0 0.785398 0" />
+    </xacro:sensor_d430>
+
+    <xacro:include filename="$(find digit_description)/urdf/sensors/_d430.urdf.xacro"/> 
+    <xacro:sensor_d430 name="${prefix}downward_pelvis_realsense_d430"  topics_ns="downward_pelvis_realsense_d430" parent="${prefix}torso" publish_pointcloud="true">
+        <origin xyz="0.0235 0.0 -0.017" rpy="0 1.5708 0" />
+    </xacro:sensor_d430>
+
+    <xacro:include filename="$(find digit_description)/urdf/sensors/_d430.urdf.xacro"/> 
+    <xacro:sensor_d430 name="${prefix}backward_pelvis_realsense_d430"  topics_ns="backward_pelvis_realsense_d430" parent="${prefix}torso" publish_pointcloud="true">
+        <origin xyz="0.005 0.0 -0.009" rpy="0 2.356198 0" />
+    </xacro:sensor_d430>
+
+    <xacro:include filename="$(find digit_description)/urdf/sensors/DFM_27UP006-ML.urdf.xacro"/> 
+    <xacro:DFM_27UP006-ML  parent="${prefix}torso" prefix="${prefix}">
+        <origin xyz="0.09 0.015 0.366" rpy="0 0 0" />
+    </xacro:DFM_27UP006-ML>
+
+
+
+</robot>
+
